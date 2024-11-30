@@ -1,0 +1,88 @@
+#1_exercise
+class Product:
+    def __init__(self, name, price, stock):
+        self.name = name
+        self.price = price
+        self.stock = stock
+
+class ProductManager:
+    def __init__(self):
+        self.products = []
+
+    def add_product(self, name, price, stock):
+        new_product = Product(name, price, stock)
+        self.products.append(new_product)
+
+#2_exrsice
+def calculate_total_stock_value(products):
+    return sum(product.price * product.stock for product in products)
+
+#3_exercise
+def calculate_discount(product, threshold=10, discount_rate=0.1):
+    if product.stock < threshold:
+        return product.price * (1 - discount_rate)
+    return product.price
+
+#4_exercise
+class ProductManager:
+    # Остальные методы опущены для краткости
+    def list_products(self):
+        return [product.name for product in self.products]
+
+#5_exercise
+class ProductManager:
+    # Остальные методы опущены для краткости
+    def find_product(self, name):
+        for product in self.products:
+            if product.name.lower() == name.lower():
+                return product
+        return None
+
+#6_exercise
+from data_module import ProductManager
+from calculation_module import calculate_total_stock_value, calculate_discount
+
+def main():
+    manager = ProductManager()
+    
+    while True:
+        print("\n1. Додати товар\n2. Переглянути список товарів\n3. Пошук товару\n4. Розрахунок залишку\n5. Вихід")
+        choice = input("Оберіть опцію: ")
+
+        if choice == "1":
+            name = input("Назва товару: ")
+            price = float(input("Ціна: "))
+            stock = int(input("Кількість на складі: "))
+            manager.add_product(name, price, stock)
+
+        elif choice == "2":
+            print("Список товарів:")
+            for product in manager.list_products():
+                print(f"- {product}")
+
+        elif choice == "3":
+            name = input("Введіть назву товару для пошуку: ")
+            product = manager.find_product(name)
+            if product:
+                print(f"Знайдено: {product.name}, Ціна: {product.price}, Залишок: {product.stock}")
+            else:
+                print("Товар не знайдено.")
+
+        elif choice == "4":
+            total_value = calculate_total_stock_value(manager.products)
+            print(f"Загальна вартість залишків на складі: {total_value}")
+
+            print("\nРозрахунок знижки для товарів з низьким залишком:")
+            for product in manager.products:
+                discounted_price = calculate_discount(product)
+                print(f"{product.name}: Нова ціна - {discounted_price}")
+
+        elif choice == "5":
+            print("Програма завершена.")
+            break
+
+        else:
+            print("Некоректний вибір. Спробуйте ще раз.")
+
+if __name__ == "__main__":
+    main()
