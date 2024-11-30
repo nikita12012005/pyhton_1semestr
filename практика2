@@ -1,0 +1,85 @@
+class Person:
+    def __init__(self, name, scores):
+        """
+        Ініціалізація базового класу Person.
+        :param name: Ім'я студента
+        :param scores: Список оцінок
+        """
+        self.name = name
+        self.scores = scores
+
+    def calculate_average_score(self):
+        """
+        Розрахунок середнього балу.
+        :return: Середній бал
+        """
+        if not self.scores:
+            return 0
+        return sum(self.scores) / len(self.scores)
+
+    def calculate_total_score(self):
+        """
+        Розрахунок загального балу.
+        :return: Сума всіх оцінок
+        """
+        return sum(self.scores)
+
+    def __str__(self):
+        return f"{self.name}: Середній бал - {self.calculate_average_score()}, Загальний бал - {self.calculate_total_score()}"
+
+class FullTimeStudent(Person):
+    def __init__(self, name, scores, attendance_rate):
+        """
+        Ініціалізація класу для студентів очної форми.
+        :param name: Ім'я студента
+        :param scores: Список оцінок
+        :param attendance_rate: Відсоток відвідувань (0-100)
+        """
+        super().__init__(name, scores)
+        self.attendance_rate = attendance_rate
+
+    def calculate_average_score(self):
+        """
+        Розрахунок середнього балу з урахуванням відвідуваності.
+        """
+        base_average = super().calculate_average_score()
+        # Вплив відвідуваності (наприклад, знижка за низький відсоток)
+        if self.attendance_rate < 75:
+            return base_average * 0.9  # Знижка 10% за низьку відвідуваність
+        return base_average
+
+    def __str__(self):
+        return f"{self.name} (Очна форма): Середній бал - {self.calculate_average_score()}, Загальний бал - {self.calculate_total_score()}, Відвідуваність - {self.attendance_rate}%"
+
+class PartTimeStudent(Person):
+    def __init__(self, name, scores, self_study_rate):
+        """
+        Ініціалізація класу для студентів заочної форми.
+        :param name: Ім'я студента
+        :param scores: Список оцінок
+        :param self_study_rate: Кількість годин самостійної роботи на тиждень
+        """
+        super().__init__(name, scores)
+        self.self_study_rate = self_study_rate
+
+    def calculate_average_score(self):
+        """
+        Розрахунок середнього балу з урахуванням годин самостійної роботи.
+        """
+        base_average = super().calculate_average_score()
+        # Підвищення середнього балу за активну самостійну роботу
+        if self.self_study_rate > 10:
+            return base_average * 1.1  # Підвищення 10% за активну самостійну роботу
+        return base_average
+
+    def __str__(self):
+        return f"{self.name} (Заочна форма): Середній бал - {self.calculate_average_score()}, Загальний бал - {self.calculate_total_score()}, Самостійна робота - {self.self_study_rate} год/тиждень"
+
+# Тестування
+full_time_student = FullTimeStudent("Олексій", [85, 90, 78], attendance_rate=80)
+part_time_student = PartTimeStudent("Марія", [88, 92, 74], self_study_rate=12)
+
+print(full_time_student)
+print(part_time_student)
+
+
