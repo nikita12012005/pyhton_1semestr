@@ -1,0 +1,66 @@
+cvs
+Прізвище,Ім'я,Вік,Факультет,Середній бал
+Іваненко,Іван,20,ІТ,85
+Петренко,Ольга,22,Філологія,90
+Сидоренко,Андрій,19,ІТ,78
+
+import csv
+import json
+
+# Читання CSV
+def read_csv(file_path):
+    students = []
+    with open(file_path, mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            students.append(row)
+    return students
+
+# Конвертація у JSON
+def convert_to_json(data, output_file):
+    with open(output_file, mode='w', encoding='utf-8') as file:
+        json.dump(data, file, ensure_ascii=False, indent=4)
+
+# Читання JSON
+def read_json(file_path):
+    with open(file_path, mode='r', encoding='utf-8') as file:
+        return json.load(file)
+
+# Пошук за прізвищем
+def find_student_by_last_name(students, last_name):
+    results = [student for student in students if student['Прізвище'].lower() == last_name.lower()]
+    return results
+
+# Виведення студентів
+def display_students(students):
+    for student in students:
+        print(f"""
+        Прізвище: {student['Прізвище']}
+        Ім'я: {student['Ім\'я']}
+        Вік: {student['Вік']}
+        Факультет: {student['Факультет']}
+        Середній бал: {student['Середній бал']}
+        """)
+
+# Головна програма
+csv_file = 'students.csv'
+json_file = 'students.json'
+
+# 1. Читання CSV
+students_data = read_csv(csv_file)
+
+# 2. Конвертація у JSON
+convert_to_json(students_data, json_file)
+
+# 3. Читання з JSON
+students_from_json = read_json(json_file)
+
+# 4. Пошук за прізвищем
+last_name_to_search = input("Введіть прізвище студента для пошуку: ")
+found_students = find_student_by_last_name(students_from_json, last_name_to_search)
+
+# 5. Виведення результатів
+if found_students:
+    display_students(found_students)
+else:
+    print("Студента з таким прізвищем не знайдено.")
