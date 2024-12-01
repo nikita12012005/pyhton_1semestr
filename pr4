@@ -1,0 +1,120 @@
+import sqlite3
+import csv
+
+# Функції створення бази
+def create_database(db_name):
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS students (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            age INTEGER,
+            faculty TEXT
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS works (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            grade INTEGER,
+            FOREIGN KEY(student_id) REFERENCES students(id)
+        )
+    ''')
+
+    connection.commit()
+    connection.close()
+
+# Функції для роботи з CSV
+def read_csv(file_path):
+    students = []
+    with open(file_path, mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            students.append(row)
+    return students
+
+def save_to_database(db_name, data):
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    for row in data:
+        cursor.execute('''
+            INSERT INTO students (name, age, faculty)
+            VALUES (?, ?, ?)
+        ''', (row['name'], row['age'], row['faculty']))
+        student_id = cursor.lastrowid
+
+        cursor.execute('''
+            INSERT INTO works (student_id, title, grade)
+            VALUES (?, ?, ?)
+        ''', (student_id, row['work_title'], row['grade']))
+
+    connection.commit()
+    connection.close()
+
+# Функції для запитів до бази
+def get_all_students(db_name):
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    cursor.execute('SELECT * FROM students')
+    students = cursor.fetchall()
+
+    connection.close()
+    return students
+
+def get_student_works(db_name, student_name):
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    cursor.execute('''
+        SELECT works.title, works.grade 
+        FROM works 
+        JOIN students ON works.student_id = students.id 
+        WHERE students.name = ?
+    ''', (student_name,))
+    works = cursor.fetchall()
+
+    connection.close()
+    return works
+
+def calculate_average_grade(db_name, student_name):
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    cursor.execute('''
+        SELECT AVG(works.grade) 
+        FROM works 
+        JOIN students ON works.student_id = students.id 
+        WHERE students.name = ?
+    ''', (student_name,))
+    average_grade = cursor.fetchone()[0]
+
+    connection.close()
+    return average_grade
+
+# Основна програма
+create_database("students.db")
+csv_data = read_csv("students.csv")
+save_to_database("students.db", csv_data)
+
+students = get_all_students("students.db")
+print("Список студентів:", students)
+
+student_name = "Іван Іваненко"
+works = get_student_works("students.db", student_name)
+print(f"Роботи студента {student_name}:", works)
+
+average_grade = calculate_average_grade("students.db", student_name)
+print(f"Середній бал студента {student_name}:", average_grade)
+
+
+CSV
+name,age,faculty,work_title,grade
+Іван Іваненко,20,ІТ,Програмування,85
+Ольга Петренко,22,Філологія,Література,90
+Андрій Сидоренко,19,ІТ,Математика,78
