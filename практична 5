@@ -1,0 +1,94 @@
+1. Встановлення Django
+Переконайтеся, що Python встановлений на вашому комп'ютері. Потім інсталюйте Django через pip:
+
+
+pip install django
+2. Створення нового проекту
+Для створення нового проекту виконайте:
+
+
+django-admin startproject myproject
+cd myproject
+3. Запуск серверу розробки
+Для перевірки, чи все налаштовано правильно, запустіть сервер розробки:
+
+
+python manage.py runserver
+Відкрийте браузер і перейдіть за адресою http://127.0.0.1:8000, щоб побачити стартову сторінку Django.
+
+4. Створення додатку
+Додаток в Django — це модуль, який виконує певну функцію. Створіть його так:
+
+bash
+Копировать код
+python manage.py startapp myapp
+Додайте новий додаток до налаштувань проекту в settings.py:
+
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'myapp',  # Доданий додаток
+]
+Основні компоненти Django
+1. Моделі
+Моделі визначають структуру бази даних. Наприклад:
+
+
+from django.db import models
+
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+Після створення моделі виконайте:
+
+
+python manage.py makemigrations
+python manage.py migrate
+2. В'юхи
+В'юхи обробляють HTTP-запити та повертають HTTP-відповіді. Наприклад:
+
+
+from django.http import HttpResponse
+
+def index(request):
+    return HttpResponse("Hello, Django!")
+3. Шаблони
+Шаблони формують HTML-відповіді. Файл index.html:
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Django App</title>
+</head>
+<body>
+    <h1>Welcome to Django!</h1>
+</body>
+</html>
+Підключення шаблону у в'юхах:
+
+
+from django.shortcuts import render
+
+def index(request):
+    return render(request, 'index.html')
+4. URL-шляхи
+Шляхи визначають маршрути для запитів. У файлі urls.py:
+
+python
+Копировать код
+from django.contrib import admin
+from django.urls import path
+from myapp.views import index
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', index, name='home'),
+]
