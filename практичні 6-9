@@ -1,0 +1,172 @@
+### **Практична робота №6: Базова розробка блогу**
+**Мета:** Створення основного функціоналу блогу.
+
+1. **Налаштування проекту:**
+   - Створити проект:
+     ```bash
+     django-admin startproject blog_project
+     cd blog_project
+     ```
+   - Створити додаток `blog`:
+     ```bash
+     python manage.py startapp blog
+     ```
+   - Додати додаток до `INSTALLED_APPS` у `settings.py`.
+
+2. **Моделі:**
+   - Створити модель `Post`:
+     ```python
+     from django.db import models
+
+     class Post(models.Model):
+         title = models.CharField(max_length=200)
+         content = models.TextField()
+         created_at = models.DateTimeField(auto_now_add=True)
+         author = models.CharField(max_length=100)
+
+         def __str__(self):
+             return self.title
+     ```
+   - Виконати міграції:
+     ```bash
+     python manage.py makemigrations
+     python manage.py migrate
+     ```
+
+3. **Адмін-панель:**
+   - Зареєструвати модель у `admin.py`:
+     ```python
+     from .models import Post
+     admin.site.register(Post)
+     ```
+
+4. **В'юхи та URL:**
+   - Створити простий список постів:
+     ```python
+     from django.shortcuts import render
+     from .models import Post
+
+     def post_list(request):
+         posts = Post.objects.all()
+         return render(request, 'blog/post_list.html', {'posts': posts})
+     ```
+   - Додати маршрут у `urls.py`:
+     ```python
+     from django.urls import path
+     from blog.views import post_list
+
+     urlpatterns = [
+         path('', post_list, name='post_list'),
+     ]
+     ```
+
+5. **Шаблони:**
+   - Створити папку `templates/blog` і файл `post_list.html`:
+     ```html
+     <!DOCTYPE html>
+     <html>
+     <head>
+         <title>Блог</title>
+     </head>
+     <body>
+         <h1>Мій блог</h1>
+         {% for post in posts %}
+             <h2>{{ post.title }}</h2>
+             <p>{{ post.content }}</p>
+             <p>Автор: {{ post.author }} | Дата: {{ post.created_at }}</p>
+         {% endfor %}
+     </body>
+     </html>
+     ```
+
+---
+
+### **Практична робота №7: Додавання форми, Email, і коментарів**
+**Мета:** Розширення функціоналу блогу.
+
+1. **Форма для створення постів:**
+   - Створити форму у `forms.py`:
+     ```python
+     from django import forms
+     from .models import Post
+
+     class PostForm(forms.ModelForm):
+         class Meta:
+             model = Post
+             fields = ['title', 'content', 'author']
+     ```
+
+   - Додати нову в'юху для створення поста:
+     ```python
+     from django.shortcuts import render, redirect
+     from .forms import PostForm
+
+     def create_post(request):
+         if request.method == 'POST':
+             form = PostForm(request.POST)
+             if form.is_valid():
+                 form.save()
+                 return redirect('post_list')
+         else:
+             form = PostForm()
+         return render(request, 'blog/create_post.html', {'form': form})
+     ```
+
+   - Оновити `urls.py`:
+     ```python
+     path('new/', create_post, name='create_post'),
+     ```
+
+   - Додати шаблон для створення постів:
+     ```html
+     <h1>Створити новий пост</h1>
+     <form method="post">
+         {% csrf_token %}
+         {{ form.as_p }}
+         <button type="submit">Зберегти</button>
+     </form>
+     ```
+
+2. **Email-розсилка:**
+   - Налаштувати `settings.py` для SMTP.
+   - Додати функціонал відправлення листа після створення поста.
+
+3. **Коментарі:**
+   - Додати модель `Comment` для коментарів:
+     ```python
+     class Comment(models.Model):
+         post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+         content = models.TextField()
+         created_at = models.DateTimeField(auto_now_add=True)
+     ```
+
+---
+
+### **Практична робота №8: Розширення функціоналу**
+**Мета:** Додавання пошуку, категорій, та фільтрації.
+
+1. **Категорії:**
+   - Додати модель `Category` та зв'язати її з постами.
+   - Створити фільтрацію постів за категоріями.
+
+2. **Пошук:**
+   - Реалізувати пошук постів за ключовими словами.
+
+3. **Пагінація:**
+   - Використати вбудовану систему пагінації Django.
+
+---
+
+### **Практична робота №9: Додавання стилів**
+**Мета:** Використання CSS та Bootstrap для оформлення блогу.
+
+1. **Стилі:**
+   - Підключити Bootstrap у шаблонах.
+   - Оформити список постів та форму.
+
+2. **Медіафайли:**
+   - Додати функціонал для завантаження та відображення зображень у постах.
+
+3. **Деплой:**
+   - Розгорнути блог на Heroku чи іншій платформі для продакшн.
+
